@@ -1,0 +1,123 @@
+activity_main.xml
+
+TextView - ||||||      android:id="@+id/header"  |||||      android:text="Progress Bar Experiment"
+
+ProgressBar - ||  android:id="@+id/progressBar"   || style="? android:attr/progressBarStyleHorizontal"
+
+TextView - ||||||     android:id="@+id/progressstatus"  |||||     android:text="%"
+
+Button - ||||||     android:id="@+id/start"   |||||     android:text="Start Download"
+
+MainActivity.Java
+
+package com.example.myapp;
+
+
+
+public class MainActivity extends AppCompatActivity {
+
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+        EdgeToEdge.enable(this);
+
+        setContentView(R.layout.activity_main);
+
+        Button submit = findViewById(R.id.Submit);
+
+        TextView progresstatus = findViewById(R.id.progressstatus);
+
+        ProgressBar pgb = findViewById(R.id.progressBar);
+
+        submit.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+
+            public void onClick(View v) {
+
+                progresstatus.setVisibility(View.VISIBLE);
+
+                pgb.setVisibility(View.VISIBLE);
+
+                new Thread(new Runnable() {
+
+                    @Override
+
+                    public void run() {
+
+                        int i = 0 ;
+
+                        while(i<=100){
+
+                            try {
+
+                                Thread.sleep(1000);
+
+                            }catch (InterruptedException e){e.printStackTrace();}
+
+                            int progress = i;
+
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+
+                                public void run() {
+
+                                    pgb.setProgress(progress);
+
+                                    progresstatus.setText("Progress Status "+ progress);
+
+                                    if(progress>=100){
+
+                                        AlertDialog.Builder al= new AlertDialog.Builder(MainActivity.this);
+
+                                        al.setTitle("Download Window");
+
+                                        al.setMessage("Download Complete");
+
+                                        al.setNegativeButton("cancel",((dialog, which) -> {
+
+                                            submit.setVisibility(View.VISIBLE);
+
+                                            dialog.dismiss();
+
+                                        }));
+
+                                        al.setPositiveButton("ok",((dialog, which) -> {
+
+                                            finish();
+
+                                        }));
+
+                                        al.show();
+
+                                    }
+
+                                }
+
+                            });
+
+                            i++;
+
+                        }
+
+                    }
+
+                }).start();
+
+            }
+
+        -----------------------------------------------------------------------------------------------------------------------
+
+          
+
+        });
+
+
+    }
+
+}
