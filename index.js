@@ -108,211 +108,216 @@ db.employees.countDocuments();
 // ============================================
 
 
-1. Open Docker Desktop.
-2. Wait until Docker Engine is running.
-3. Keep it open.
+Step 1: Open VS Code Terminal
 
-## Step 2: Open VS Code terminal
+Pull MongoDB image:
 
-Open VS Code → Terminal → New Terminal.
+Bash
 
-Select PowerShell.
+docker pull mongo
 
-Check Docker:
+Step 2: Create MongoDB container
 
-```
-docker --version
-```
+Bash
 
-Check Docker is running:
+docker run -d --name mongodb -p
 
-```
-docker ps
-```
+27017:27017 mongo
 
-## Step 3: Download MongoDB image
+Open VS Code Terminal and execute:
 
 ```
-docker pull mongo:latest
-```
-## Step 4: Check downloaded image
-
-```
-docker images
+docker start mongodb
 ```
 
-Expected:
-
-```
-REPOSITORY   TAG       IMAGE ID       SIZE
-mongo        latest    xxxxxxxxxxxx   ...
-```
-
-## Step 5: Create MongoDB container
-
-```
-docker run -d --name mongodb -p 27017:27017 mongo:latest
-```
-
-## Step 6: Check container
-
-```
-docker ps
-```
-
-You should see:
-
-```
-CONTAINER ID   IMAGE         STATUS       PORTS
-xxxxxxxx       mongo:latest  Up           27017
-```
-
-## Step 7: Enter MongoDB Shell
+## Step 2: Open MongoDB Shell
 
 ```
 docker exec -it mongodb mongosh
 ```
 
-You should see:
+You will see:
 
 ```
 test>
 ```
 
-## Step 8: Select database
+## Step 3: Select Company database
 
 ```
 use company
 ```
 
-Expected:
-
-```
-switched to db company
-```
-
-## Step 9: Insert employee records
+## Step 4: Insert employee records
 
 ```
 db.employees.insertMany([
-{empid:1, name:"A", dept:"D1", sal:10000, status:"P"},
-{empid:2, name:"B", dept:"D1", sal:20000, status:"A"},
-{empid:3, name:"C", dept:"D2", sal:30000, status:"P"},
-{empid:4, name:"D", dept:"D2", sal:40000, status:"A"}
+    {
+        employee_id: 101,
+        name: "Sonia Rao",
+        department: "Engineering",
+        salary: 95000,
+        hire_date: new Date("2023-01-15"),
+        performance_score: 4.5,
+        status: "Active"
+    },
+    {
+        employee_id: 102,
+        name: "Rajesh Kumar",
+        department: "HR",
+        salary: 68000,
+        hire_date: new Date("2024-03-22"),
+        performance_score: 4.1,
+        status: "Active"
+    },
+    {
+        employee_id: 103,
+        name: "Arjun Singh",
+        department: "Engineering",
+        salary: 120000,
+        hire_date: new Date("2022-06-01"),
+        performance_score: 4.8,
+        status: "Active"
+    },
+    {
+        employee_id: 104,
+        name: "Priya Mehta",
+        department: "Sales",
+        salary: 85000,
+        hire_date: new Date("2023-11-10"),
+        performance_score: 4.2,
+        status: "Active"
+    },
+    {
+        employee_id: 105,
+        name: "Vikram Reddy",
+        department: "Sales",
+        salary: 85000,
+        hire_date: new Date("2024-08-01"),
+        status: "On Leave"
+    }
 ])
 ```
 
-## Step 10: Execute all selector queries
+You should get `acknowledged: true` and five inserted IDs.
 
-1\. Comparison selector – $gt and $lt
+## Step 5: Comparison Selectors
 
-```
-db.employees.find({
-sal: {$gt:10000, $lt:40000}
-})
-```
-
-2\. $in selector
+1\. $gt and $lte – Salary greater than 90000 and less than or equal to 120000
 
 ```
 db.employees.find({
-dept: {$in:["D1"]}
+    salary: {$gt: 90000, $lte: 120000}
 })
 ```
 
-3\. $ne selector
+Expected: Sonia Rao, Arjun Singh.
+
+2\. $in – Employees in HR or Sales department
 
 ```
 db.employees.find({
-status: {$ne:"A"}
+    department: {$in: ["HR", "Sales"]}
 })
 ```
 
-4\. AND selector
+Expected: Rajesh Kumar, Priya Mehta, Vikram Reddy.
+
+3\. $ne – Employees whose status is not On Leave
 
 ```
 db.employees.find({
-dept:"D1",
-sal:10000,
-status:"P"
+    status: {$ne: "On Leave"}
 })
 ```
 
-5\. $and selector
+Expected: Sonia Rao, Rajesh Kumar, Arjun Singh, Priya Mehta.
+
+## Step 6: Logical Selectors
+
+4\. $and – Engineering employees with performance score greater than or equal to 4.5
 
 ```
 db.employees.find({
-$and:[
-{dept:"D2"},
-{sal:{$gt:20000}}
-]
+    department: "Engineering",
+    performance_score: {$gte: 4.5}
 })
 ```
 
-6\. $or selector
+Expected: Sonia Rao, Arjun Singh.
+
+5\. $or – Employees in HR OR having salary greater than 100000
 
 ```
 db.employees.find({
-$or:[
-{dept:"D1"},
-{sal:{$gt:30000}}
-]
+    $or: [
+        {department: "HR"},
+        {salary: {$gt: 100000}}
+    ]
 })
 ```
 
-7\. Combined selector
+Expected: Rajesh Kumar, Arjun Singh.
+
+## Step 7: Combining Selectors (Complex Query)
+
+6\. Find Active employees in Engineering or Sales departments who were hired before 2024.
 
 ```
 db.employees.find({
-dept:"D1",
-sal:{$gt:10000},
-status:"P"
+    status: "Active",
+    department: {$in: ["Engineering", "Sales"]},
+    hire_date: {$lt: new Date("2024-01-01")}
 })
 ```
 
-## Step 11: Display all records
+Expected: Sonia Rao, Arjun Singh, Priya Mehta.
 
-```
-db.employees.find()
-```
+## Step 8: Close MongoDB
 
-Expected total records: 4.
-
-## Step 12: Exit MongoDB
+Exit MongoDB Shell:
 
 ```
 exit
 ```
 
-## Execution checklist
+Stop Docker:
 
-Program 7 progress
+```
+docker stop mongodb
+```
 
-0/11
+## Expected output summary
 
-Step 1: Open Docker Desktop
+| Query | Expected employees                                |
+| ----- | ------------------------------------------------- |
+| 1     | Sonia Rao, Arjun Singh                            |
+| 2     | Rajesh Kumar, Priya Mehta, Vikram Reddy           |
+| 3     | Sonia Rao, Rajesh Kumar, Arjun Singh, Priya Mehta |
+| 4     | Sonia Rao, Arjun Singh                            |
+| 5     | Rajesh Kumar, Arjun Singh                         |
+| 6     | Sonia Rao, Arjun Singh, Priya Mehta               |
 
-Step 2: Check Docker version
+## Important: Avoid duplicate records
 
-Step 3: Pull MongoDB image
+Since you previously inserted four employees into `company.employees`, you must clear the old collection before inserting this new dataset.
 
-Step 4: Check Docker images
+Before Step 4, execute:
 
-Step 5: Create MongoDB container
+```
+db.employees.drop()
+```
 
-Step 6: Check running container
+This removes the previous employees collection, allowing you to insert the five new records without duplicates.
 
-Step 7: Open mongosh
+Ready to execute
 
-Step 8: Select company database
+Remember: Execute all MongoDB queries inside `mongosh` (where you see `company>`), not in the normal VS Code terminal.
 
-Step 9: Insert four employee records
 
-Step 10: Execute all selector queries
-
-Step 11: Display final records
-=-------------------------------------------------------------------------------------------
-
+//=================================================================================================
+//=-------------------------------------------------------------------------------------------
+//=====================================================================================================
     program4
 
 Here is the complete Program 6 React JS code, based on your three notebook images. It includes displaying student details, adding new students and dynamically updating the table.
