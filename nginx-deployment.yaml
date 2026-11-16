@@ -1,0 +1,37 @@
+minikube start --driver=docker
+minikube status
+kubectl get nodes
+mkdir program7
+cd program7
+nano nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+kubectl apply -f nginx-deployment.yaml
+kubectl get deployments
+kubectl get pods
+kubectl expose deployment nginx-deployment --type=NodePort --port=80
+kubectl get services
+minikube service nginx-deployment
+kubectl delete deployment nginx-deployment
+kubectl delete service nginx-deployment
+kubectl get deployments
+kubectl get pods
+kubectl get services
+minikube stop
