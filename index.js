@@ -1,45 +1,61 @@
-mkdir prog4
-cd prog4
-npm init -y
-const express = require("express");
-const app = express();
-const PORT = 3000;
+mongosh
+use KavyaDB
+db
+db.createCollection("catalog")
 
-app.get("/", (req, res) => {
-  res.send("Hello from Git + Docker Integration!");
-});
+db.catalog.insertMany([
+{
+    item_id: "A001",
+    name: "Classic Leather Backpack",
+    description: "Durable leather backpack with multiple compartments, perfect for daily commute or light travel.",
+    tags: ["leather", "backpack", "travel", "work"],
+    price: 120.00,
+    in_stock: true
+},
+{
+    item_id: "A002",
+    name: "Ergonomic Office Chair",
+    description: "Adjustable office chair with lumbar support and breathable mesh, ideal for long working hours.",
+    tags: ["office", "chair", "ergonomic", "comfort"],
+    price: 280.00,
+    in_stock: false
+},
+{
+    item_id: "A003",
+    name: "Durable Cotton T-Shirt",
+    description: "A soft and durable t-shirt made from 100% organic cotton. Eco-friendly and comfortable.",
+    tags: ["cotton", "tshirt", "organic", "eco-friendly"],
+    price: 25.00,
+    in_stock: true
+}
+]);
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
-npm install express
-# Stage 1 Build Stage
-FROM node:18 AS build
-WORKDIR /app
-COPY package.json ./
-RUN npm install
-COPY . .
+db.catalog.find()
 
-# Stage 2 Runtime Stage
-FROM node:18-slim
-WORKDIR /app
-COPY --from=build /app /app
-EXPOSE 3000
-CMD ["node", "index.js"]
-sudo docker build -t prog4 .
-sudo docker run -d -p 3000:3000 --name prog4-container prog4
-git hub
-nano .gitignore
-node_modules/
-git init
-git add .
-git status
-git commit -m "Initial commit"
-git branch -M main
+db.catalog.createIndex({
+    name: "text",
+    description: "text",
+    tags: "text"
+})
 
-git remote add origin https://github.com/YOUR_USERNAME/prog4.git
-or 
-git remote set-url origin https://github.com/kmkavyasri/program4_devops-p4-.git
+db.catalog.aggregate([
+    {
+        $match: {
+            $text: {
+                $search: "durable backpack"
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            name: 1,
+            price: 1,
+            score: { $meta: "textScore" }
+        }
+    }
+])
 
-git remote -v
-git push -u origin main
+db.catalog.getIndexes()
+
+  
