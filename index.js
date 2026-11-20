@@ -1,8 +1,12 @@
-mongosh
+docker pull mongo
+ docker run -d --name mongodb-container -p 27017:27017 mongo
+docker ps
+ docker exec -it mongodb-container mongosh
 use KavyaDB
-db
+ show dbs
 db.createCollection("catalog")
-
+show dbs
+ show collections
 db.catalog.insertMany([
 {
     item_id: "A001",
@@ -29,15 +33,12 @@ db.catalog.insertMany([
     in_stock: true
 }
 ]);
-
 db.catalog.find()
-
 db.catalog.createIndex({
     name: "text",
     description: "text",
     tags: "text"
 })
-
 db.catalog.aggregate([
     {
         $match: {
@@ -55,7 +56,4 @@ db.catalog.aggregate([
         }
     }
 ])
-
 db.catalog.getIndexes()
-
-  
