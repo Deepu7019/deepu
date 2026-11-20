@@ -236,3 +236,113 @@ body {
 
 npm install
 npm start
+
+-------------------------
+npx create-react-app program4
+cd program4
+npm start
+
+Student.js
+import React from "react";
+
+const studlist = [
+  { slno: 1, name: "stud1", usn: "rvce1", tmarks: 150 },
+  { slno: 2, name: "stud2", usn: "rvce2", tmarks: 145 }
+];
+
+class StudentListTable extends React.Component {
+  constructor() {
+    super();
+    this.state = { students: [] };
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({ students: studlist });
+    }, 5000);
+  }
+
+  addStudent = (e) => {
+    e.preventDefault();
+    const form = e.target;
+
+    const student = {
+      slno: this.state.students.length + 1,
+      name: form.name.value,
+      usn: form.usn.value,
+      tmarks: form.tmarks.value
+    };
+
+    this.setState({
+      students: [...this.state.students, student]
+    });
+
+    form.reset();
+  };
+
+  render() {
+    return (
+      <>
+        <h2>Student Registration Portal</h2>
+
+        <table border="1">
+          <thead>
+            <tr>
+              <th>Sl No</th>
+              <th>Name</th>
+              <th>USN</th>
+              <th>Total Marks</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {this.state.students.map((s) => (
+              <tr key={s.slno}>
+                <td>{s.slno}</td>
+                <td>{s.name}</td>
+                <td>{s.usn}</td>
+                <td>{s.tmarks}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <hr />
+
+        <form onSubmit={this.addStudent}>
+          <input name="name" placeholder="Name" required />
+          <input name="usn" placeholder="USN" required />
+          <input name="tmarks" placeholder="Total Marks" required />
+          <button type="submit">Add</button>
+        </form>
+      </>
+    );
+  }
+}
+
+export default StudentListTable;
+
+app.js
+import React from "react";
+import StudentListTable from "./Student";
+
+function App() {
+  return (
+    <div className="App">
+      <StudentListTable />
+    </div>
+  );
+}
+
+export default App;
+
+index.js
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+            npm install
+npm start
